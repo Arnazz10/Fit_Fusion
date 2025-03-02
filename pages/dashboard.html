@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitAI - Lead</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="../style/dashboard.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="../assets/logo.png" alt="">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="home.html"><i class="fas fa-home"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="camera.html"><i class="fas fa-dumbbell"></i> Fit Cam</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="beatz.html"><i class="fas fa-users"></i> Beatz</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <div class="notification-icon me-3">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">2</span>
+                    </div>
+                    <img src="../assets/me.jpg" alt="Profile" class="profile-img me-3">
+                    <button id="logout-btn" class="btn btn-danger px-3">LOGOUT</button>
+                </div>                
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-grid">
+            <!-- Profile Card -->
+            <div class="card profile-card">
+                <img src="../assets/me.jpg" alt="User Profile" class="user-avatar">
+                <h4 class="user-name">Loading...</h4> 
+                <p class="user-level">Elite Athlete</p>
+                <div class="streak-badge">
+                    <i class="fas fa-fire"></i> 7 Day Streak
+                </div>
+                <div class="user-stats mt-3">
+                    <div id="total-points" class="stat-item">
+                        <i class="fas fa-trophy"></i>
+                        <span class="stat-value">0</span>
+                        <span class="stat-label">Total Points</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Leaderboard -->
+            <div class="card leaderboard-card">
+                <h4 class="card-title">Leaderboard</h4>
+                <div class="leaderboard-refresh">
+                    <span id="refresh-status">Auto-refreshes every 5 seconds</span>
+                    <button id="refresh-btn" class="btn btn-sm btn-primary">
+                        <i class="fas fa-sync-alt"></i> Refresh Now
+                    </button>
+                </div>
+                <div id="leaderboard-container">
+                    <!-- Leaderboard dynamically populated here -->
+                    <div class="text-center p-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading leaderboard...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Exercise Summary -->
+            <div class="card exercise-summary-card">
+                <h4 class="card-title">Exercise Summary</h4>
+                <div id="exercise-summary">
+                    <div class="exercise-item">
+                        <div class="exercise-icon">
+                            <i class="fas fa-running"></i>
+                        </div>
+                        <div class="exercise-info">
+                            <h6>Squats</h6>
+                            <p id="squat-count">0 reps</p>
+                        </div>
+                    </div>
+                    <div class="exercise-item">
+                        <div class="exercise-icon">
+                            <i class="fas fa-child"></i>
+                        </div>
+                        <div class="exercise-info">
+                            <h6>Toe Touches</h6>
+                            <p id="toe-touch-count">0 reps</p>
+                        </div>
+                    </div>
+                    <div class="exercise-item">
+                        <div class="exercise-icon">
+                            <i class="fas fa-dumbbell"></i>
+                        </div>
+                        <div class="exercise-info">
+                            <h6>Hammer Curls</h6>
+                            <p id="hammer-curl-count">0 reps</p>
+                        </div>
+                    </div>
+                    <div class="exercise-item">
+                        <div class="exercise-icon">
+                            <i class="fas fa-hiking"></i>
+                        </div>
+                        <div class="exercise-info">
+                            <h6>Lunges</h6>
+                            <p id="lunge-count">0 reps</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const username = localStorage.getItem("loggedInUser");
+            if (!username) {
+                alert("No user logged in! Redirecting to login...");
+                window.location.href = "login.html";
+            } else {
+                document.querySelector(".user-name").textContent = username;
+                updateUserStats(username);
+            }
+
+            // Initial leaderboard update
+            updateLeaderboard();
+            
+            // Set up interval to periodically check for leaderboard updates
+            const refreshInterval = setInterval(updateLeaderboard, 5000); // Update every 5 seconds
+            
+            // Manual refresh button
+            document.getElementById("refresh-btn").addEventListener("click", function() {
+                updateLeaderboard();
+                // Visual feedback for refresh
+                this.disabled = true;
+                setTimeout(() => {
+                    this.disabled = false;
+                }, 1000);
+            });
+
+            // Logout functionality
+            document.getElementById("logout-btn").addEventListener("click", function () {
+                localStorage.removeItem("loggedInUser");
+                window.location.href = "login.html";
+            });
+        });
+        
+        function updateLeaderboard() {
+            // Fetch users from Local Storage
+            let users = JSON.parse(localStorage.getItem("users")) || [];
+
+            // Sort users by points in descending order
+            users.sort((a, b) => b.points - a.points);
+
+            const leaderboardContainer = document.getElementById("leaderboard-container");
+            
+            // If no users, show a message
+            if (users.length === 0) {
+                leaderboardContainer.innerHTML = `
+                    <div class="text-center p-4">
+                        <p>No users on the leaderboard yet. Start exercising to earn points!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            leaderboardContainer.innerHTML = ""; // Clear existing content
+
+            users.forEach((user, index) => {
+                const rankClass = index === 0 ? "gold" : index === 1 ? "silver" : index === 2 ? "bronze" : "";
+                leaderboardContainer.innerHTML += `
+                    <div class="leaderboard-item ${user.username === localStorage.getItem("loggedInUser") ? "current-user" : ""}">
+                        <div class="leaderboard-rank ${rankClass}">${index + 1}</div>&nbsp;&nbsp;
+                        <img src="../assets/me.jpg" alt="${user.username}" class="leaderboard-img">
+                        <div class="leaderboard-info">
+                            <h6 class="leaderboard-name">${user.username}</h6>
+                            <p class="leaderboard-points">${user.points || 0} pts</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // Update last refreshed time
+            const now = new Date();
+            document.getElementById("refresh-status").textContent = 
+                `Last updated: ${now.toLocaleTimeString()} (auto-refreshes every 5s)`;
+                
+            // Update the current user's stats
+            updateUserStats(localStorage.getItem("loggedInUser"));
+        }
+        
+        function updateUserStats(username) {
+            if (!username) return;
+            
+            // Find user in users array
+            const users = JSON.parse(localStorage.getItem("users")) || [];
+            const currentUser = users.find(user => user.username === username) || { points: 0 };
+            
+            // Update points display
+            document.getElementById("total-points").querySelector(".stat-value").textContent = 
+                currentUser.points || 0;
+                
+            // Update exercise summary if data exists
+            const exerciseData = JSON.parse(localStorage.getItem("exerciseData")) || {};
+            const userExercise = exerciseData[username] || {};
+            
+            document.getElementById("squat-count").textContent = 
+                `${userExercise.squats || 0} reps`;
+            document.getElementById("toe-touch-count").textContent = 
+                `${userExercise.toeTouches || 0} reps`;
+            document.getElementById("hammer-curl-count").textContent = 
+                `${userExercise.hammerCurls || 0} reps`;
+            document.getElementById("lunge-count").textContent = 
+                `${userExercise.lunges || 0} reps`;
+        }
+    </script>
+
+    <style>
+        /* Additional styles for the updated dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .profile-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .user-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 4px solid #ff3d3d;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .user-level {
+            color: #ff3d3d;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+        
+        .streak-badge {
+            background: linear-gradient(to right, #ff3d3d, #ff8700);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .leaderboard-card {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .card-title {
+            font-weight: 600;
+            color: #3a0ca3;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .card-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: #ff3d3d;
+        }
+        
+        .leaderboard-refresh {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .leaderboard-item:hover {
+            background: #f0f0f0;
+        }
+        
+        .leaderboard-rank {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            background: #aaa;
+        }
+        
+        .gold {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+        }
+        
+        .silver {
+            background: linear-gradient(45deg, #C0C0C0, #A9A9A9);
+        }
+        
+        .bronze {
+            background: linear-gradient(45deg, #CD7F32, #A0522D);
+        }
+        
+        .leaderboard-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin: 0 15px;
+            object-fit: cover;
+        }
+        
+        .leaderboard-info {
+            flex: 1;
+        }
+        
+        .leaderboard-name {
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        .leaderboard-points {
+            margin: 0;
+            color: #ff3d3d;
+            font-weight: 600;
+        }
+        
+        .current-user {
+            border: 2px solid #ff3d3d;
+            background: rgba(255, 61, 61, 0.05);
+        }
+        
+        .user-stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 8px;
+            min-width: 100px;
+        }
+        
+        .stat-item i {
+            color: #ff3d3d;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            font-size: 18px;
+            color: #3a0ca3;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .exercise-summary-card {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .exercise-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .exercise-item:hover {
+            background: #f0f0f0;
+        }
+        
+        .exercise-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ff3d3d;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .exercise-info {
+            flex: 1;
+        }
+        
+        .exercise-info h6 {
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        .exercise-info p {
+            margin: 0;
+            color: #3a0ca3;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+</body>
+</html>

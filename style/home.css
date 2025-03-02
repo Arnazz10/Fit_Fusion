@@ -1,0 +1,289 @@
+:root {
+    --primary: #ff3d3d;
+    --secondary: #3a0ca3;
+    --success: #4cc9f0;
+    --warning: #f72585;
+    --light-bg: #f8f9fa;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.navbar {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 8px 0;
+    height: 70px;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand img {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: var(--primary);
+    font-size: 1.4rem;
+}
+
+.navbar-toggler {
+    border: none;
+    outline: none;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+.nav-link {
+    color: #555;
+    font-weight: 500;
+    padding: 8px 16px;
+    transition: all 0.3s ease;
+    border-radius: 6px;
+}
+
+.nav-link:hover {
+    background-color: rgba(67, 97, 238, 0.08);
+    color: var(--primary);
+}
+
+.navbar-nav .nav-item {
+    margin: 0 10px;
+}
+
+.nav-link.active {
+    color: var(--primary);
+    background-color: rgba(67, 97, 238, 0.12);
+}
+
+.signIN {
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.signIN:hover {
+    color: var(--primary);
+}
+
+.btn-danger {
+    font-weight: 500;
+    padding: 8px 20px;
+    border-radius: 6px;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn-danger:hover {
+    background: darkred;
+    transform: scale(1.05);
+}
+
+.hero-section {
+    background-image: url(../assets/hero.png);
+    background-color: var(--light-bg);
+    padding: 100px 0; /* Increased padding for more height */
+    position: relative;
+    overflow: hidden;
+    background-position: right;
+    background-repeat: no-repeat;
+    background-size: contain; /* Keeps image sharp */
+    height: 80vh; /* Increased height */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.hero-text {
+    max-width: 500px;
+    margin-bottom: 30px;
+}
+
+.hero-text h1 {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
+.hero-text p {
+    font-size: 18px;
+    margin-bottom: 30px;
+    color: #495057;
+}
+
+.btn-red {
+    background-color: var(--primary);
+    color: white;
+    border-radius: 25px;
+    padding: 10px 25px;
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-red:hover {
+    background-color: #d32f2f;
+    color: white;
+}
+
+.btn-outline {
+    border: 2px solid #343a40;
+    color: #343a40;
+    border-radius: 25px;
+    padding: 10px 25px;
+    font-weight: 600;
+    background-color: transparent;
+    transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+    background-color: #343a40;
+    color: white;
+}
+
+.features-section, .membership-section {
+    padding: 60px 0;
+    background-color: white;
+}
+
+.feature-box {
+    text-align: center;
+    padding: 20px 15px;
+}
+
+.feature-icon {
+    color: var(--primary);
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+
+.feature-title {
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.feature-text {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.classes-section {
+    padding: 60px 0;
+    background-color: var(--light-bg);
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 40px;
+    font-weight: 700;
+}
+
+.class-card {
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.class-card:hover {
+    transform: translateY(-5px);
+}
+
+.class-img-container {
+    height: 200px;
+    overflow: hidden;
+}
+
+.class-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.class-info {
+    padding: 15px;
+    background-color: white;
+}
+
+.class-title {
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.class-trainer, .class-time, .plan-duration {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.card1:hover {
+    background:#f66138;
+    border:1px solid #f66138;
+  }
+  .card1:hover .list-group-item{
+    background:#f66138 !important
+  }
+  .card2:hover {
+    background:#f66138;
+    border:1px solid #f66138;
+  }
+  .card2:hover .list-group-item{
+    background:#f66138 !important
+  }
+
+  .card3:hover {
+    background:#f66138;
+    border:1px solid #f66138;
+  }
+
+  .card3:hover .list-group-item{
+    background:#f66138 !important
+  }
+
+
+  .card:hover .btn-outline-dark{
+    color:rgb(255, 255, 255);
+    background:#212529;
+  }
+
+
+
+
+@media (max-width: 991px) {
+    .hero-text h1 {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 767px) {
+    .hero-text {
+        text-align: center;
+        margin: 0 auto 30px;
+    }
+    .hero-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 992px) {
+    .navbar-collapse {
+        text-align: center;
+    }
+    .navbar-nav {
+        margin-top: 10px;
+    }
+    .signIN, .btn-danger {
+        display: block;
+        width: 100%;
+        margin-top: 10px;
+    }
+}

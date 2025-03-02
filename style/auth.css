@@ -1,0 +1,102 @@
+/* Reset & Basic Setup */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    height: 100%;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Container for the two-column layout */
+  .container {
+    display: flex;
+    height: 100vh;
+    position: relative; /* for logo positioning */
+  }
+  
+  /* Logo at the top center */
+  .logo {
+    position: absolute;
+    top: 50px;
+    left: 75%;
+    transform: translateX(-50%);
+  }
+  
+  /* Left side (image side) */
+  .left-side {
+    width: 50%;
+    background-color: #ffffff; /* a subtle background color */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .left-side img {
+    max-width: auto;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* Right side (form side) */
+  .right-side {
+    width: 50%;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+  }
+  
+  /* Form styling */
+  .right-side h2 {
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+  
+  .right-side form {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+  }
+  
+  .right-side input {
+    margin-bottom: 15px;
+    padding: 10px;
+    font-size: 16px;
+  }
+  
+  .right-side button {
+    padding: 12px;
+    font-size: 16px;
+    background-color: #ff4c60; 
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .right-side button:hover {
+    background-color: #ff2a42;
+  }
+  
+  /* Link styling */
+  .right-side p {
+    margin-top: 15px;
+  }
+  
+  .right-side a {
+    color: #ff4c60;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .right-side a:hover {
+    color: #ff2a42;
+  }
+  

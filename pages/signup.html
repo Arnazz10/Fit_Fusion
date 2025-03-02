@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signup</title>
+  <link rel="stylesheet" href="../style/auth.css">
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="../assets/logo.png" alt="Logo" width="120"/>
+    </div>
+
+    <div class="left-side">
+      <img src="../assets/Login page.png" alt="Muscular Man">
+    </div>
+
+    <div class="right-side">
+      <h2>Sign Up</h2>
+      <form id="signupForm">
+        <input type="text" id="username" placeholder="Username" required />
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="submit">Sign Up</button>
+      </form>
+
+      <p>Already have an account? <a href="login.html">Login here</a></p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("signupForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const username = document.getElementById("username").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      // Get existing users from Local Storage
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+
+      // Check if email already exists
+      if (users.some(user => user.email === email)) {
+        alert("Email already registered! Please login.");
+        return;
+      }
+
+      // Generate a random starting score (between 1000 and 3000)
+      const points = 1000;
+
+      // Store new user in Local Storage with random points
+      users.push({ username, email, password, points });
+      localStorage.setItem("users", JSON.stringify(users));
+
+      alert(`Signup successful! Your starting score is ${points}. Please login.`);
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FitFusion - Exercise Reps Counter</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --primary: #ff3d3d;
+        --secondary: #3a0ca3;
+        --success: #4cc9f0;
+        --warning: #f72585;
+        --light-bg: #f8f9fa;
+        --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+      body {
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--light-bg);
+      }
+      .navbar {
+        background: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        padding: 8px 0; /* Reduce padding to maintain fixed height */
+        height: 70px; /* Set a fixed height for the navbar */
+        display: flex;
+        align-items: center;
+    }
+    
+    .navbar-brand img {
+        height: 50px; /* Increase logo size without affecting navbar height */
+        width: auto; /* Maintain aspect ratio */
+        object-fit: contain; /* Ensure image is contained */
+    }
+    
+    .navbar-brand {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        color: var(--primary);
+        font-size: 1.4rem;
+    }
+    
+    .navbar-toggler {
+        border: none;
+        outline: none;
+    }
+    
+    .navbar-toggler:focus {
+        box-shadow: none;
+    }
+    
+    .nav-link {
+        color: #555;
+        font-weight: 500;
+        padding: 8px 16px;
+        transition: all 0.3s ease;
+        border-radius: 6px;
+    }
+    
+    .nav-link:hover {
+        background-color: rgba(67, 97, 238, 0.08);
+        color: var(--primary);
+    }
+    
+    .navbar-nav .nav-item {
+        margin: 0 10px;
+    }
+    
+    .nav-link.active {
+        color: var(--primary);
+        background-color: rgba(67, 97, 238, 0.12);
+    }
+    
+    .profile-img {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var;
+    }
+    
+    .notification-icon {
+        position: relative;
+        margin-right: 20px;
+    }
+    
+    .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -8px;
+        background-color: var(--warning);
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        font-size: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+      .container-custom {
+        width: 100%;
+        margin: auto;
+        padding: 0 15px;
+      }
+      .flex-container {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+        margin-top: 20px;
+      }
+      .left-column {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      .right-column {
+        flex: 1;
+      }
+      /* Performance/Leaderboard Section */
+      .performance-card {
+        background: #fff;
+        box-shadow: var(--card-shadow);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        height: 100%;
+      }
+      .performance-card h2 {
+        margin-bottom: 20px;
+        color: var(--secondary);
+      }
+      .performance-list {
+        list-style: none;
+        padding: 0;
+      }
+      .performance-list li {
+        padding: 15px;
+        border-bottom: 1px solid #e9ecef;
+        font-size: 1.1rem;
+        display: flex;
+        justify-content: space-between;
+      }
+      .performance-list li:last-child {
+        border-bottom: none;
+      }
+      .performance-list .count {
+        font-weight: 600;
+        color: var(--primary);
+      }
+      /* Canvas Container */
+      .canvas-container {
+        background-color: #fff;
+        box-shadow: var(--card-shadow);
+        border-radius: 10px;
+        padding: 10px;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      @media (max-width: 992px) {
+        .flex-container {
+          flex-direction: column-reverse;
+        }
+        .container-custom {
+          width: 100%;
+        }
+      }
+    </style>
+    <!-- p5.js and other libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+  </head>
+  <body>
+    <!-- Before starting the camera, ensure we have a user name -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Retrieve username from localStorage
+        const username = localStorage.getItem("loggedInUser");
+
+        if (!username) {
+            alert("No user logged in! Redirecting to login...");
+            window.location.href = "login.html";
+        } else {
+            // Update the welcome message
+            document.getElementById("welcome-message").textContent = "Welcome, " + username + "!";
+        }
+
+        // Logout functionality
+        document.getElementById("logout-btn").addEventListener("click", function () {
+            localStorage.removeItem("loggedInUser");
+            window.location.href = "login.html";
+        });
+    });
+    </script>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <img src="../assets/logo.png" alt="FitFusion Logo" />
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav mx-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="home.html"><i class="fas fa-home"></i> Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="camera.html"><i class="fas fa-dumbbell"></i> Fit Cam</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="beatz.html"><i class="fas fa-users"></i> Beatz</a>
+          </li>
+          </ul>
+          <div class="d-flex align-items-center">
+            <div class="notification-icon">
+              <i class="fas fa-bell"></i>
+              <span class="notification-badge">2</span>
+            </div>
+            <img src="../assets/me.jpg" alt="Profile" class="profile-img" />
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main content with flexbox layout -->
+    <div class="container">
+      <div class="flex-container">
+        <!-- Left Column: Performance Card -->
+        <div class="left-column">
+          <div class="performance-card">
+            <h2 id="welcome-message">Welcome, Guest!</h2>
+            <p class="mb-4">Track your exercise counts in real-time</p>
+            <ul class="performance-list">
+              <li>Squats <span id="squat-count" class="count">0</span></li>
+              <li>Toe Touches <span id="toe-touch-count" class="count">0</span></li>
+              <li>Hammer Curls <span id="hammer-curl-count" class="count">0</span></li>
+              <li>Stretching <span id="stretching-count" class="count">0</span></li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Right Column: Canvas Container -->
+        <div class="right-column">
+          <div id="canvas-container" class="canvas-container">
+            <!-- p5.js will append the canvas here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- p5.js and Pose Detection Script -->
+    <script>
+      // Helper function to update the welcome message dynamically
+      function updateWelcomeMessage() {
+        const username = sessionStorage.getItem("loggedInUser") || localStorage.getItem("loggedInUser") || localStorage.getItem("username") || "Guest";
+        document.getElementById("welcome-message").innerText = "Welcome, " + username + "!";
+      }
+
+      // Set the welcome message initially
+      updateWelcomeMessage();
+
+
+
+      // Set the welcome message using the current logged in user
+      const username = sessionStorage.getItem("loggedInUser") || localStorage.getItem("loggedInUser") || localStorage.getItem("username") || "Guest";
+      document.getElementById("welcome-message").innerText = "Welcome, " + username + "!";
+      
+      let detector;
+      let poses;
+      let video;
+      
+      // Exercise Rep Variables
+      let squatReps = 0, squatStage = "Up", lastSquatUpdate = Date.now();
+      let toeTouchReps = 0, toeTouchStage = "Up", lastToeTouchUpdate = Date.now();
+      let hammerCurlReps = 0, hammerCurlStage = "Down", lastHammerCurlUpdate = Date.now();
+      // Replacing Jumping Jacks with Stretching
+      let stretchingReps = 0, stretchingStage = "Closed", lastStretchingUpdate = Date.now();
+      
+      const MIN_TIME_BETWEEN_COUNTS = 250;
+      const TOETOUCH_TOUCH_THRESHOLD = 90, TOETOUCH_UP_THRESHOLD = 150;
+      const CURL_UP_THRESHOLD = 50, CURL_DOWN_THRESHOLD = 160;
+      const LATERAL_BEND_THRESHOLD = 15, UPRIGHT_LATERAL_THRESHOLD = 5;
+      
+      let lastUpdateTime = 0; // For sending data at intervals
+      
+      async function init() {
+        const detectorConfig = { modelType: poseDetection.movenet.modelType.SINGLEPOSE_THUNDER };
+        detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet, detectorConfig);
+        getPoses();
+      }
+      
+      function setup() {
+        const canvas = createCanvas(640, 480);
+        canvas.parent("canvas-container");
+        video = createCapture(VIDEO);
+        video.size(640, 480);
+        video.hide();
+        init();
+      }
+      
+      async function getPoses() {
+        poses = await detector.estimatePoses(video.elt);
+        setTimeout(getPoses, 0);
+      }
+      
+      function draw() {
+        background(220);
+        // Mirror video for a selfie view
+        translate(width, 0);
+        scale(-1, 1);
+        image(video, 0, 0, width, height);
+        
+        drawKeypoints();
+        drawSkeleton();
+        
+        if (poses && poses.length > 0) {
+          trackSquat();
+          trackToeTouch();
+          trackHammerCurl();
+          trackStretching();
+        }
+        
+        resetMatrix();
+        // Display rep counts on canvas (optional debugging)
+        fill(255);
+        strokeWeight(2);
+        stroke(51);
+        textSize(24);
+        if (poses && poses.length > 0) {
+          text(`Squats: ${squatReps}`, 10, 30);
+          text(`Toe Touches: ${toeTouchReps}`, 10, 60);
+          text(`Hammer Curls: ${hammerCurlReps}`, 10, 90);
+          text(`Stretching: ${stretchingReps}`, 10, 120);
+        } else {
+          text("Loading, please wait...", 10, 30);
+        }
+        
+        // Update performance card counts
+        document.getElementById("squat-count").innerText = squatReps;
+        document.getElementById("toe-touch-count").innerText = toeTouchReps;
+        document.getElementById("hammer-curl-count").innerText = hammerCurlReps;
+        document.getElementById("stretching-count").innerText = stretchingReps;
+        
+        let currentTime = Date.now();
+        if (currentTime - lastUpdateTime > 1000) {
+          sendDataToBackend();
+          lastUpdateTime = currentTime;
+        }
+      }
+      
+      function drawKeypoints() {
+        if (poses && poses.length > 0) {
+          for (let kp of poses[0].keypoints) {
+            if (kp.score > 0.3) {
+              fill(255);
+              stroke(0);
+              strokeWeight(4);
+              circle(kp.x, kp.y, 16);
+            }
+          }
+        }
+      }
+      
+      function drawSkeleton() {
+        const edges = {
+          "5,7": "m", "7,9": "m",
+          "6,8": "c", "8,10": "c",
+          "5,6": "y", "5,11": "m",
+          "6,12": "c", "11,12": "y",
+          "11,13": "m", "13,15": "m",
+          "12,14": "c", "14,16": "c"
+        };
+        const confidence_threshold = 0.5;
+        if (poses && poses.length > 0) {
+          for (const [pair] of Object.entries(edges)) {
+            const indices = pair.split(",");
+            const p1 = parseInt(indices[0]);
+            const p2 = parseInt(indices[1]);
+            const kp1 = poses[0].keypoints[p1];
+            const kp2 = poses[0].keypoints[p2];
+            if (kp1.score > confidence_threshold && kp2.score > confidence_threshold) {
+              strokeWeight(2);
+              stroke("rgb(0, 255, 0)");
+              line(kp1.x, kp1.y, kp2.x, kp2.y);
+            }
+          }
+        }
+      }
+      
+      function calculateAngle(a, b, c) {
+        let radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
+        let angle = Math.abs(radians * (180.0 / Math.PI));
+        return angle > 180 ? 360 - angle : angle;
+      }
+      
+      // Helper function to check if the movement between hip and knee is more horizontal than vertical.
+      function isHorizontal() {
+        if (!poses || poses.length === 0) return false;
+        let leftHip = poses[0].keypoints[11];
+        let leftKnee = poses[0].keypoints[13];
+        if (leftHip.score < 0.3 || leftKnee.score < 0.3) return false;
+        const xDiff = Math.abs(leftHip.x - leftKnee.x);
+        const yDiff = Math.abs(leftHip.y - leftKnee.y);
+        return xDiff > yDiff;
+      }
+      
+      function trackSquat() {
+        if (isHorizontal()) return;
+        if (!poses || poses.length === 0) return;
+        let leftHip = poses[0].keypoints[11];
+        let leftKnee = poses[0].keypoints[13];
+        let leftAnkle = poses[0].keypoints[15];
+        if (leftHip.score > 0.3 && leftKnee.score > 0.3 && leftAnkle.score > 0.3) {
+          // Calculate the knee bending angle (hip, knee, ankle)
+          let kneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+          // Define a waist threshold as 70% of the canvas height.
+          let waistThreshold = height * 0.7;
+          
+          // Set "Up" stage when the leg is nearly straight.
+          if (kneeAngle > 160) {
+            squatStage = "Up";
+          }
+          // Count a squat rep when the knee is sufficiently bent (angle < 100)
+          // OR if the hip has dropped below waist level, and the previous stage was "Up".
+          else if (squatStage === "Up" && (kneeAngle < 100 || leftHip.y > waistThreshold)) {
+            squatStage = "Down";
+            let currentTime = Date.now();
+            if (currentTime - lastSquatUpdate > MIN_TIME_BETWEEN_COUNTS) {
+              squatReps++;
+              lastSquatUpdate = currentTime;
+            }
+          }
+        }
+      }
+      
+
+      
+      function trackToeTouch() {
+        if (!poses || poses.length === 0) return;
+        let leftShoulder = poses[0].keypoints[5];
+        let leftHip = poses[0].keypoints[11];
+        let leftAnkle = poses[0].keypoints[15];
+        if (leftShoulder.score < 0.5 || leftHip.score < 0.5 || leftAnkle.score < 0.5)
+          return;
+        let toeTouchAngle = calculateAngle(leftShoulder, leftHip, leftAnkle);
+        if (toeTouchAngle < TOETOUCH_TOUCH_THRESHOLD && toeTouchStage === "Up") {
+          toeTouchStage = "Down";
+        } else if (toeTouchAngle > TOETOUCH_UP_THRESHOLD && toeTouchStage === "Down") {
+          toeTouchStage = "Up";
+          let currentTime = Date.now();
+          if (currentTime - lastToeTouchUpdate > MIN_TIME_BETWEEN_COUNTS) {
+            toeTouchReps++;
+            lastToeTouchUpdate = currentTime;
+          }
+        }
+      }
+      
+      function trackHammerCurl() {
+        if (!poses || poses.length === 0) return;
+        let leftShoulder = poses[0].keypoints[5];
+        let leftElbow = poses[0].keypoints[7];
+        let leftWrist = poses[0].keypoints[9];
+        if (leftShoulder.score < 0.5 || leftElbow.score < 0.5 || leftWrist.score < 0.5)
+          return;
+        
+        // Ensure the movement is primarily on the Y-axis
+        const xDiff = Math.abs(leftWrist.x - leftElbow.x);
+        const yDiff = Math.abs(leftWrist.y - leftElbow.y);
+        if (xDiff > yDiff) {
+          // Movement is more horizontal than vertical; skip counting this rep
+          return;
+        }
+        
+        let curlAngle = calculateAngle(leftShoulder, leftElbow, leftWrist);
+        if (curlAngle < CURL_UP_THRESHOLD && hammerCurlStage === "Down") {
+          hammerCurlStage = "Up";
+        } else if (curlAngle > CURL_DOWN_THRESHOLD && hammerCurlStage === "Up") {
+          hammerCurlStage = "Down";
+          let currentTime = Date.now();
+          if (currentTime - lastHammerCurlUpdate > MIN_TIME_BETWEEN_COUNTS) {
+            hammerCurlReps++;
+            lastHammerCurlUpdate = currentTime;
+          }
+        }
+      }
+      
+      // New stretching logic based on arms moving from chest (closed) to full wingspan (open)
+      function trackStretching() {
+        if (!poses || poses.length === 0) return;
+        const leftWrist = poses[0].keypoints[9];
+        const rightWrist = poses[0].keypoints[10];
+        const leftShoulder = poses[0].keypoints[5];
+        const rightShoulder = poses[0].keypoints[6];
+        
+        if (
+          leftWrist.score < 0.5 ||
+          rightWrist.score < 0.5 ||
+          leftShoulder.score < 0.5 ||
+          rightShoulder.score < 0.5
+        )
+          return;
+        
+        // Calculate distance between wrists and shoulders
+        const wristDistance = dist(leftWrist.x, leftWrist.y, rightWrist.x, rightWrist.y);
+        const shoulderDistance = dist(leftShoulder.x, leftShoulder.y, rightShoulder.x, rightShoulder.y);
+        
+        // Define thresholds: when the hands are near the chest (closed) vs. fully extended (open)
+        const closedThreshold = shoulderDistance * 1.2;
+        const openThreshold = shoulderDistance * 2.5;
+        
+        if (stretchingStage === "Closed" && wristDistance > openThreshold) {
+          stretchingStage = "Open";
+        } else if (stretchingStage === "Open" && wristDistance < closedThreshold) {
+          const currentTime = Date.now();
+          if (currentTime - lastStretchingUpdate > MIN_TIME_BETWEEN_COUNTS) {
+            stretchingReps++;
+            lastStretchingUpdate = currentTime;
+          }
+          stretchingStage = "Closed";
+        }
+      }
+      
+      function sendDataToBackend() {
+        // Get current exercise counts
+        const squats = squatReps;
+        const toeTouches = toeTouchReps;
+        const hammerCurls = hammerCurlReps;
+        const stretching = stretchingReps;
+        
+        // Calculate points (3 points per rep)
+        const pointsEarned = (squats + toeTouches + hammerCurls + stretching) * 3;
+        
+        // Get users from localStorage
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+        
+        // Find the current user
+        const currentUserName = username;
+        const userIndex = users.findIndex(user => user.username === currentUserName);
+        
+        if (userIndex !== -1) {
+          // Update the user's points
+          users[userIndex].points = (users[userIndex].points || 0) + pointsEarned;
+          localStorage.setItem("users", JSON.stringify(users));
+          console.log(`Added ${pointsEarned} points to ${currentUserName}`);
+        } else {
+          users.push({ username: currentUserName, points: pointsEarned });
+          localStorage.setItem("users", JSON.stringify(users));
+          console.log(`Created new user ${currentUserName} with ${pointsEarned} points`);
+        }
+        
+        // Save exercise data for dashboard display
+        let exerciseData = JSON.parse(localStorage.getItem("exerciseData")) || {};
+        exerciseData[currentUserName] = {
+          squats: squats,
+          toeTouches: toeTouches,
+          hammerCurls: hammerCurls,
+          stretching: stretching,
+          lastUpdated: new Date().toISOString()
+        };
+        localStorage.setItem("exerciseData", JSON.stringify(exerciseData));
+        
+        // Prepare payload for backend
+        const data = {
+          username: username,
+          squats: squats,
+          toeTouches: toeTouches,
+          hammerCurls: hammerCurls,
+          stretching: stretching,
+          pointsEarned: pointsEarned
+        };
+        
+        console.log("Sending Data:", JSON.stringify(data));
+        
+        // Optional: send data to backend if available
+        fetch("http://localhost:5000/saveExercise", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        })
+          .then(response => response.json())
+          .then(data => console.log("Response from server:", data))
+          .catch(error => console.error("Error sending data:", error));
+      }
+      
+      window.setup = setup;
+      window.draw = draw;
+    </script>
+    
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
