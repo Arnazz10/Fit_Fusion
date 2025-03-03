@@ -42,3 +42,7 @@
 ```bash
 git clone https://github.com/FlexItOut-Hackathon/CODEX_SRMBFHL13.git
 cd CODEX_SRMBFHL13
+
+pip install -r requirements.txt
+python server.py
+
