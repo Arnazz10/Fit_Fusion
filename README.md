@@ -2,7 +2,7 @@
 
 **Fit Fusion** is an intelligent workout tracker that uses **computer vision and real-time angle detection** to count exercise repetitions automatically. This project leverages **Flask, SQLite, and GitHub Actions** to provide a seamless user experience.  
 
-![Fitness Banner](https://www.behance.net/gallery/220429653/Fitfusion-A-way-to-change-peoples-personality/modules/1257115985)  
+![Fitness Banner]()  
 
 ---
 
